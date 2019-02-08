@@ -38,7 +38,7 @@ router.post('/', function(req, res, next){
       lastName: req.body.lastName
     })
     .then(userExists => {
-      if(!userExists[0]){
+      if(!userExists){
       knex('users')
         .insert({
                     firstName: req.body.firstName,
@@ -50,11 +50,10 @@ router.post('/', function(req, res, next){
                 })
       .returning('*')
       .then((newUser) => {
-        res.status(200).send(JSON.stringify(newUser[0]))
+        res.status(200).json(newUser[0])
       })
     } else {
-      console.log(userExists)
-      res.status(200).send(JSON.stringify(userExist[0]))
+      res.status(200).json(userExists[0])
     }
     }
     )

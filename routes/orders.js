@@ -11,7 +11,7 @@ const stripe = require('stripe')(stripeSecretKey);
 //List (get all of the resource)
 router.get('/', function (req, res, next) {
   knex('orders')
-    .select('id', 'pickupLocationId', 'eventId', 'reservationId', 'reservationWillCallName', 'discountCodeId', 'status')
+    .select('*')
     .then((data) => {
       res.status(200).json(data)
     })
@@ -59,35 +59,38 @@ router.post('/', function (req, res, next) {
           orderedByLastName: lastName,
           orderedByEmail: email
         })
-        .returning(['id', 'orderedByFirstName', 'orderedByLastName', 'orderedByEmail'])
+        .returning('*')
         .then((newOrder) => {
           newOrderId = newOrder[0].id
           return newOrderId
         })
         .then((newOrderId) => {
+          console.log("orders SUCCESS")
           knex('pickup_parties')
             .where({
               eventId: eventId,
               pickupLocationId: pickupLocationId,
             })
             .decrement("capacity", ticketQuantity)
-            .returning(['id', 'eventId', 'pickupLocationId', 'inCart', 'capacity'])
+            .returning('*')
             .then((newPickupParty) => {
               newPickupPartyId = newPickupParty[0].id
               let newOrdersArr = [newOrderId, newPickupPartyId]
               return newOrdersArr
             })
             .then((ordersArr) => {
+              console.log(ordersArr[0])
               knex('reservations')
                 .insert({
                   orderId: ordersArr[0],
                   pickupPartiesId: ordersArr[1],
                   willCallFirstName: req.body.willCallFirstName,
                   willCallLastName: req.body.willCallLastName,
-                  discountCodeId: userDiscountCode
+                  discountCodeId: null
                 })
-                .returning(['*'])
+                .returning('*')
                 .then((newReservation) => {
+                  console.log("reservations success")
                   res.status(200).json(newReservation[0])
                 })
             })

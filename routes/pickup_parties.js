@@ -8,7 +8,7 @@ const knex = require('../knex.js')
 //List (get all of the resource)
 router.get('/', function(req, res, next){
   knex('pickup_parties')
-    .select('id', 'eventId', 'pickupLocationId', 'inCart', 'capacity')
+    .select('*')
   .then((data) => {
     res.status(200).json(data)
   })
