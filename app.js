@@ -3,9 +3,6 @@ if (process.env.NODE_ENV !== 'production'){
   require('dotenv').load();
 }
 
-var stripe = require("stripe")("sk_test_UpJeVveXeyBBKiiJUcE4SWm6");
-// var stripePublicKey = process.env.STRIPE_PUBLICKEY;
-// var stripe = require('stripe')(stripeSecretKey);
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -13,7 +10,6 @@ var logger = require('morgan');
 var dotenv = require('dotenv').config()
 var cron = require('node-cron')
 
-// var usersRouter = require('./routes/users');
 var discountCodesEventsRouter = require('./routes/discount_codes_events')
 var discountCodesRouter = require('./routes/discount_codes');
 var eventsRouter = require('./routes/events');
@@ -48,10 +44,6 @@ app.use('/pickup_locations', pickupLocationsRouter);
 app.use('/pickup_parties', pickupPartiesRouter);
 app.use('/reservations', reservationsRouter);
 
-
-let time = new Date()
-
-
 app.use(function(req, res) {
   res.status(404).send('Not Found');
 });
@@ -61,10 +53,10 @@ apiDataFunction = async () => {
   eventDataHandler.insertEventData(allShowsObj)
 }
 
-// apiDataFunction() // commented out until we go live
+apiDataFunction() // commented out until we go live
 
+let time = new Date()
 cron.schedule('00 04 * * * *', async () => {
-  // console.log('Cron!', time.getMinutes())
   apiDataFunction()
 })
 

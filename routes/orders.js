@@ -65,7 +65,6 @@ router.post('/', function (req, res, next) {
           return newOrderId
         })
         .then((newOrderId) => {
-          console.log("orders SUCCESS")
           knex('pickup_parties')
             .where({
               eventId: eventId,
@@ -79,7 +78,6 @@ router.post('/', function (req, res, next) {
               return newOrdersArr
             })
             .then((ordersArr) => {
-              console.log(ordersArr[0])
               knex('reservations')
                 .insert({
                   orderId: ordersArr[0],
@@ -90,7 +88,6 @@ router.post('/', function (req, res, next) {
                 })
                 .returning('*')
                 .then((newReservation) => {
-                  console.log("reservations success")
                   res.status(200).json(newReservation[0])
                 })
             })
@@ -111,6 +108,7 @@ router.post('/', function (req, res, next) {
           })
       })
 
+
       //Delete (delete one of the resource)
       router.delete('/:id', function (req, res, next) {
         knex('orders')
@@ -122,21 +120,26 @@ router.post('/', function (req, res, next) {
           })
       })
 
-
-      router.post('/charge', async (req, res) => {
-        stripe.customers.create({
-            email: req.body.stripeEmail,
-            source: req.body.stripeToken.id,
-          })
-          .then(customer => stripe.charges.create({
-            amount: req.body.amount,
-            description: 'example charge',
-            currency: 'usd',
-            customer: customer.id
-          }))
-          .then(charge => {
-            return res.json(charge)
-          });
-      });
+router.post('/charge', async(req, res) => {
+  stripe.customers.create({
+    email: req.body.stripeEmail,
+    source: req.body.stripeToken.id,
+  })
+  .then(customer =>{
+    stripe.charges.create({
+        amount: req.body.amount,
+        description: 'example charge',
+        currency: 'usd',
+        customer: customer.id,
+        receipt_email: customer.email
+      }, (err, charge) => {
+        if (err) {
+          return err
+        }
+        return res.json(charge)
+      }
+    )
+  })
+})
 
       module.exports = router;
