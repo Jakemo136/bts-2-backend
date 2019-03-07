@@ -65,8 +65,9 @@ const filterShowsObj = (showsObj) => {
   }, [])
 }
 
+// filter out most punctuation that breaks urls, the info needs to be formatted to a url for the next api call
 const filterArtists = (filteredShowsObj) =>{
-  return filteredShowsObj.map(show => { // filter out most punctuation that breaks urls
+  return filteredShowsObj.map(show => { 
     show = show.headliner
     show = show.replace(/[&]/g, 'and')
     .replace(/[\/\\#,+()$~%.":*?<>{}]/g, '')
@@ -84,7 +85,7 @@ const pingLastFm = (artistsObj) => {
       return data.data
     })
     .catch(err=>{
-      //console.error('error!', err)
+      console.error(err)
     })
   })
   // map over array of band names, assign a promise to each one
@@ -93,7 +94,7 @@ const pingLastFm = (artistsObj) => {
       if(data.error){
         return new Error("artist does not exist in Last.fm")
       }
-      const headlinerName = data.artist.name // || "Headliner Name"  //not sure why this doesn't default to the string in the absence of data.artist.name
+      const headlinerName = data.artist.name
       const headlinerImg = data.artist.image[2]['#text']
       const headlinerBio = data.artist.bio.content
 
